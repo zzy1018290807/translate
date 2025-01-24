@@ -104,10 +104,62 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        #password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #password-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #fixed-translation-section {
+            margin-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+        }
+        #fixed-translations-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .fixed-translation-item {
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .fixed-translation-item button {
+            background-color: #e74c3c;
+            padding: 2px 5px;
+            margin: 0;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="password-modal">
+        <div id="password-container">
+            <h2>请输入密码</h2>
+            <input type="password" id="password-input" placeholder="请输入6位密码">
+            <button id="password-submit">确认</button>
+        </div>
+    </div>
+
+    <div class="container" style="display: none;">
         <div class="column">
             <h2>中文输入</h2>
             <textarea id="chinese-input" placeholder="请输入要翻译的中文文本"></textarea>
@@ -118,6 +170,15 @@
             <div id="chinese-loading" class="loading">
                 <div class="loading-spinner"></div>
                 <p>正在等待Kimi翻译...</p>
+            </div>
+            <div id="fixed-translation-section">
+                <h3>固定翻译</h3>
+                <div>
+                    <input type="text" id="fixed-translation-source" placeholder="源词">
+                    <input type="text" id="fixed-translation-target" placeholder="目标词">
+                    <button id="add-fixed-translation">添加</button>
+                </div>
+                <div id="fixed-translations-list"></div>
             </div>
         </div>
         <div class="column">
@@ -135,9 +196,72 @@
     </div>
 
     <script>
-        // 确保在DOM加载完成后再绑定事件
         document.addEventListener('DOMContentLoaded', function() {
             const API_KEY = 'sk-WjQ5hvrI4DjTCBHdbe5rlWLuWN2rwpkaE5mDldcekhIbm7Yz';
+            const passwordModal = document.getElementById('password-modal');
+            const passwordInput = document.getElementById('password-input');
+            const passwordSubmit = document.getElementById('password-submit');
+            const mainContainer = document.querySelector('.container');
+
+            // 密码验证
+            passwordSubmit.addEventListener('click', function() {
+                if (passwordInput.value === '123456') {
+                    passwordModal.style.display = 'none';
+                    mainContainer.style.display = 'flex';
+                } else {
+                    alert('密码错误，请重试');
+                    passwordInput.value = '';
+                }
+            });
+
+            // 固定翻译功能
+            const fixedTranslations = new Map();
+            const fixedTranslationSource = document.getElementById('fixed-translation-source');
+            const fixedTranslationTarget = document.getElementById('fixed-translation-target');
+            const addFixedTranslationBtn = document.getElementById('add-fixed-translation');
+            const fixedTranslationsList = document.getElementById('fixed-translations-list');
+
+            addFixedTranslationBtn.addEventListener('click', function() {
+                const source = fixedTranslationSource.value.trim();
+                const target = fixedTranslationTarget.value.trim();
+
+                if (source && target) {
+                    if (fixedTranslations.size >= 10) {
+                        alert('最多只能添加10个固定翻译');
+                        return;
+                    }
+
+                    // 避免重复添加
+                    if (!fixedTranslations.has(source)) {
+                        fixedTranslations.set(source, target);
+                        
+                        // 创建固定翻译显示项
+                        const translationItem = document.createElement('div');
+                        translationItem.classList.add('fixed-translation-item');
+                        translationItem.innerHTML = `
+                            <span>${source} → ${target}</span>
+                            <button onclick="removeFixedTranslation('${source}')">删除</button>
+                        `;
+                        fixedTranslationsList.appendChild(translationItem);
+
+                        // 清空输入框
+                        fixedTranslationSource.value = '';
+                        fixedTranslationTarget.value = '';
+                    } else {
+                        alert('该词已存在固定翻译');
+                    }
+                }
+            });
+
+            // 删除固定翻译
+            window.removeFixedTranslation = function(source) {
+                fixedTranslations.delete(source);
+                const itemToRemove = Array.from(fixedTranslationsList.children)
+                    .find(item => item.textContent.includes(source));
+                if (itemToRemove) {
+                    fixedTranslationsList.removeChild(itemToRemove);
+                }
+            };
 
             // 中文输入框的按钮事件绑定
             document.getElementById('chinese-formal-btn').addEventListener('click', function() {
@@ -167,10 +291,15 @@
                 const loadingElement = document.getElementById(`${inputLanguage}-loading`);
                 const buttons = document.querySelectorAll('button');
                 
-                const input = inputElement.value.trim();
+                let input = inputElement.value.trim();
                 if (!input) {
                     alert('请输入要翻译的文本');
                     return;
+                }
+
+                // 应用固定翻译
+                for (const [source, target] of fixedTranslations.entries()) {
+                    input = input.replace(new RegExp(source, 'g'), target);
                 }
 
                 // 禁用按钮并显示加载动画
