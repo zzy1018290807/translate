@@ -2,355 +2,332 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Morgan Stanley 专业翻译助手</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法律智能翻译平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --ms-blue: #003366;  /* Morgan Stanley标准深蓝色 */
-            --ms-light-blue: #4a90e2;
-            --ms-gray: #f4f4f4;
-            --ms-dark-gray: #333;
-            --ms-white: #ffffff;
+            --primary-color: #003366;  /* Morgan Stanley深蓝色 */
+            --secondary-color: #4A90E2;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Roboto', 'Noto Sans SC', Arial, sans-serif;
-            background: linear-gradient(135deg, var(--ms-blue) 0%, #00254d 100%);
-            color: var(--ms-white);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a2980 100%);
+            font-family: 'Arial', sans-serif;
+            perspective: 1000px;
         }
-
-        .ms-container {
-            max-width: 100%;  /* 充满整个屏幕宽度 */
-            width: 100%;
-            margin: 0;
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;  /* 保持两列 */
-            gap: 30px;
-            flex-grow: 1;
+        .login-container, .main-container {
+            transition: all 0.6s ease;
+            transform-style: preserve-3d;
         }
-
-        .ms-card {
-            width: 100%;  /* 充满容器宽度 */
-            background-color: rgba(255,255,255,0.97);
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-            padding: 40px;
-            transition: all 0.4s ease;
-            color: var(--ms-dark-gray);
-            position: relative;
-            overflow: hidden;
+        .login-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
         }
-
-        .ms-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: var(--ms-blue);
+        .card {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-
-        .ms-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 30px 50px rgba(0,0,0,0.25);
+        .card:hover {
+            transform: translateY(-10px) rotateX(10deg);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.3);
         }
-
-        .ms-header {
-            text-align: left;
-            color: var(--ms-blue);
-            border-bottom: 2px solid var(--ms-blue);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
+        .logo {
+            max-width: 150px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
         }
-
-        .ms-header img {
-            height: 40px;
-            margin-right: 15px;
-        }
-
-        .ms-textarea {
-            width: 100%;
-            height: calc(100vh - 300px);  /* 动态高度，减去其他元素高度 */
-            min-height: 400px;
-            border: 2px solid var(--ms-blue);
-            border-radius: 10px;
-            padding: 20px;
-            font-size: 18px;
-            resize: vertical;
+        .custom-word-item {
             transition: all 0.3s ease;
-            line-height: 1.8;
+            background: rgba(255,255,255,0.8);
         }
-
-        .ms-textarea:focus {
-            outline: none;
-            border-color: var(--ms-light-blue);
-            box-shadow: 0 0 15px rgba(74,144,226,0.3);
+        .custom-word-item:hover {
+            transform: scale(1.05) rotateX(10deg);
+            background: rgba(255,255,255,0.9);
         }
-
-        .ms-button-group {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            gap: 20px;
-        }
-
-        .ms-button {
-            flex: 1;
-            margin: 0;
-            background-color: var(--ms-blue);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .ms-button:hover {
-            background-color: var(--ms-light-blue);
-            transform: scale(1.05);
-        }
-
-        .ms-loading {
-            display: none;
-            text-align: center;
-            margin-top: 15px;
-            color: var(--ms-blue);
-        }
-
-        .ms-password-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--ms-blue) 0%, #00254d 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .ms-password-container {
-            background-color: rgba(255,255,255,0.95);
-            padding: 50px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
-            width: 500px;
-            position: relative;
-        }
-
-        .ms-password-container img {
-            max-width: 250px;
-            margin-bottom: 30px;
-            position: absolute;
-            top: -80px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .ms-input {
-            width: 100%;
-            padding: 15px;
-            margin: 20px 0;
-            border: 2px solid var(--ms-blue);
-            border-radius: 8px;
-            font-size: 16px;
+        #loginOverlay {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
-<body>
-    <div class="ms-password-modal" id="password-modal">
-        <div class="ms-password-container">
-            <img src="logo.png" alt="Morgan Stanley Logo">
-            <h2 style="color: var(--ms-blue); margin-top: 100px;">专业翻译助手</h2>
-            <p>请输入访问密码</p>
-            <input type="password" class="ms-input" id="password-input" placeholder="请输入6位密码">
-            <button class="ms-button" id="password-submit">确认</button>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <!-- 登录遮罩层 -->
+    <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center" style="display:flex;">
+        <div class="login-container w-96 p-8 bg-white rounded-2xl shadow-2xl text-center">
+            <img src="logo.svg" alt="Logo" class="logo mx-auto mb-6">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">法律智能翻译平台</h2>
+            <input 
+                type="password" 
+                id="passwordInput" 
+                placeholder="请输入登录密码" 
+                class="w-full p-3 border rounded-lg mb-4"
+            >
+            <button 
+                onclick="login()" 
+                class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+            >
+                登录
+            </button>
         </div>
     </div>
 
-    <div class="ms-container" style="display: none;">
-        <div class="ms-card">
-            <h2 class="ms-header">
-                <img src="logo.png" alt="Morgan Stanley Logo">
-                中文输入
-            </h2>
-            <textarea class="ms-textarea" id="chinese-input" placeholder="请输入要翻译的中文文本"></textarea>
-            <div class="ms-button-group">
-                <button class="ms-button" id="chinese-formal-btn">正式合同风格</button>
-                <button class="ms-button" id="chinese-email-btn">邮件正式风格</button>
+    <!-- 主容器 -->
+    <div id="mainContainer" class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden flex" style="display:none;">
+        <!-- 主翻译区域 -->
+        <div class="w-3/4 p-6">
+            <div class="flex justify-between items-center mb-6">
+                <img src="logo.svg" alt="Logo" class="h-12">
+                <button 
+                    onclick="logout()" 
+                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                >
+                    退出登录
+                </button>
             </div>
-            <div class="ms-loading" id="chinese-loading">
-                <p>Morgan Stanley AI is processing</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- 源语言输入 -->
+                <div class="card p-4 rounded-lg">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-language mr-2"></i>源语言文本
+                    </label>
+                    <select id="sourceLang" class="w-full p-2 border rounded mb-4">
+                        <option value="zh">中文</option>
+                        <option value="en">English</option>
+                    </select>
+                    <textarea 
+                        id="sourceText" 
+                        class="w-full p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="请输入需要翻译的法律文本..."
+                        rows="10"
+                    ></textarea>
+                </div>
+
+                <!-- 目标语言输出 -->
+                <div class="card p-4 rounded-lg">
+                    <label class="block text-gray-700 font-bold mb-2">
+                        <i class="fas fa-globe mr-2"></i>目标语言文本
+                    </label>
+                    <select id="targetLang" class="w-full p-2 border rounded mb-4">
+                        <option value="en">English</option>
+                        <option value="zh">中文</option>
+                    </select>
+                    <textarea 
+                        id="targetText" 
+                        class="w-full p-4 border rounded-lg bg-gray-50"
+                        placeholder="翻译结果将在此显示..."
+                        rows="10"
+                        readonly
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-center space-x-4">
+                <button 
+                    onclick="translateText()" 
+                    class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+                >
+                    <i class="fas fa-language mr-2"></i>开始翻译
+                </button>
+                <button 
+                    onclick="copyText()" 
+                    class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition duration-300"
+                >
+                    <i class="fas fa-copy mr-2"></i>复制结果
+                </button>
             </div>
         </div>
 
-        <div class="ms-card">
-            <h2 class="ms-header">
-                <img src="logo.png" alt="Morgan Stanley Logo">
-                英文输入
-            </h2>
-            <textarea class="ms-textarea" id="english-input" placeholder="Please enter text to translate"></textarea>
-            <div class="ms-button-group">
-                <button class="ms-button" id="english-formal-btn">正式合同风格</button>
-                <button class="ms-button" id="english-email-btn">邮件正式风格</button>
+        <!-- 自定义词汇区域 -->
+        <div class="w-1/4 bg-gray-100 p-4 border-l">
+            <h3 class="text-lg font-bold mb-4">自定义词汇翻译</h3>
+            <div class="flex mb-4">
+                <input 
+                    type="text" 
+                    id="originalWord" 
+                    placeholder="原词" 
+                    class="w-1/2 p-2 border rounded-l"
+                >
+                <input 
+                    type="text" 
+                    id="translatedWord" 
+                    placeholder="译词" 
+                    class="w-1/2 p-2 border rounded-r"
+                >
+                <button 
+                    onclick="addCustomWord()" 
+                    class="ml-2 bg-blue-500 text-white p-2 rounded"
+                >
+                    添加
+                </button>
             </div>
-            <div class="ms-loading" id="english-loading">
-                <p>Morgan Stanley AI is processing</p>
+            <div id="customWordList" class="space-y-2">
+                <!-- 自定义词汇将在此显示 -->
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const API_KEY = 'sk-WjQ5hvrI4DjTCBHdbe5rlWLuWN2rwpkaE5mDldcekhIbm7Yz';
-            const passwordModal = document.getElementById('password-modal');
-            const passwordInput = document.getElementById('password-input');
-            const passwordSubmit = document.getElementById('password-submit');
-            const mainContainer = document.querySelector('.ms-container');
+        const CORRECT_PASSWORD = '123456';
+        const loginOverlay = document.getElementById('loginOverlay');
+        const mainContainer = document.getElementById('mainContainer');
+        const passwordInput = document.getElementById('passwordInput');
 
-            // 密码验证
-            passwordSubmit.addEventListener('click', function() {
-                if (passwordInput.value === '123456') {
-                    passwordModal.style.display = 'none';
-                    mainContainer.style.display = 'grid';
-                } else {
-                    alert('密码错误，请重试');
-                    passwordInput.value = '';
-                }
+        function login() {
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                loginOverlay.style.display = 'none';
+                mainContainer.style.display = 'flex';
+            } else {
+                alert('密码错误，请重试');
+                passwordInput.value = '';
+            }
+        }
+
+        function logout() {
+            mainContainer.style.display = 'none';
+            loginOverlay.style.display = 'flex';
+            passwordInput.value = '';
+        }
+
+        // 以下是之前的代码保持不变
+        const KIMI_API_URL = 'https://api.moonshot.cn/v1/chat/completions';
+        const API_KEY = 'sk-WjQ5hvrI4DjTCBHdbe5rlWLuWN2rwpkaE5mDldcekhIbm7Yz';
+        
+        const targetText = document.getElementById('targetText');
+        const sourceText = document.getElementById('sourceText');
+        const sourceLang = document.getElementById('sourceLang');
+        const targetLang = document.getElementById('targetLang');
+        const originalWordInput = document.getElementById('originalWord');
+        const translatedWordInput = document.getElementById('translatedWord');
+        const customWordList = document.getElementById('customWordList');
+
+        // 自定义词汇存储
+        let customWords = JSON.parse(localStorage.getItem('customWords') || '[]');
+
+        // 初始化加载自定义词汇
+        function loadCustomWords() {
+            customWordList.innerHTML = '';
+            customWords.forEach((word, index) => {
+                const wordItem = document.createElement('div');
+                wordItem.classList.add(
+                    'custom-word-item', 
+                    'p-2', 
+                    'bg-white', 
+                    'rounded', 
+                    'flex', 
+                    'justify-between', 
+                    'items-center'
+                );
+                wordItem.innerHTML = `
+                    <span>${word.original} → ${word.translated}</span>
+                    <button 
+                        onclick="removeCustomWord(${index})" 
+                        class="text-red-500 hover:text-red-700"
+                    >
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                customWordList.appendChild(wordItem);
             });
+        }
 
-            // 翻译函数
-            async function translate(inputLanguage, style) {
-                const isChineseToEnglish = inputLanguage === 'chinese';
-                const inputElement = isChineseToEnglish 
-                    ? document.getElementById('chinese-input') 
-                    : document.getElementById('english-input');
-                const outputElement = isChineseToEnglish 
-                    ? document.getElementById('english-input') 
-                    : document.getElementById('chinese-input');
-                const loadingElement = document.getElementById(`${inputLanguage}-loading`);
-                const buttons = document.querySelectorAll('.ms-button');
-                
-                let input = inputElement.value.trim();
-                if (!input) {
-                    alert('请输入要翻译的文本');
-                    return;
-                }
+        // 添加自定义词汇
+        function addCustomWord() {
+            const original = originalWordInput.value.trim();
+            const translated = translatedWordInput.value.trim();
 
-                // 禁用按钮并显示加载动画
-                buttons.forEach(button => button.disabled = true);
-                loadingElement.style.display = 'block';
-                outputElement.value = '';
-
-                const prompt = isChineseToEnglish 
-                    ? (style === 'formal' 
-                        ? `法律文件精确翻译指令：从中文翻译为英文
-
-源文本：${input}
-
-翻译要求：
-1. 法律文件精确翻译模式
-2. 严格保留原文所有法律要素和语义细节
-3. 非常通顺，不能感觉是翻译出来的
-4. 翻译必须满足以下标准：
-   a) 保持原文的精确法律含义
-   b) 维持原文的语法结构和逻辑
-   c) 使用标准法律术语
-   d) 确保译文可直接作为法律文件使用
-5. 如遇无法直接对应的词语，使用最接近的法律专业术语
-6. 翻译过程中严格遵循：
-   - 精确性高于通顺性（但是仍然要非常通顺，不能感觉是翻译出来的）
-   - 法律含义高于语言美感
-   - 要素完整性高于修辞优美
-
-请提供一个严格遵循上述原则的精确法律文件翻译。`
-                        : `请将以下中文文本翻译成正式但略显口语化的英文，适合商务邮件使用：${input}`)
-                    : (style === 'formal'
-                        ? `法律文件精确翻译指令：从英文翻译为中文
-
-源文本：${input}
-
-翻译要求：
-1. 法律文件精确翻译模式
-2. 严格保留原文所有法律要素和语义细节
-3. 非常通顺，不能感觉是翻译出来的
-4. 翻译必须满足以下标准：
-   a) 保持原文的精确法律含义
-   b) 维持原文的语法结构和逻辑
-   c) 使用标准法律术语
-   d) 确保译文可直接作为法律文件使用
-5. 如遇无法直接对应的词语，使用最接近的法律专业术语
-6. 翻译过程中严格遵循：
-   - 精确性高于通顺性（但是仍然要非常通顺，不能感觉是翻译出来的）
-   - 法律含义高于语言美感
-   - 要素完整性高于修辞优美
-
-请提供一个严格遵循上述原则的精确法律文件翻译。`
-                        : `请将以下英文文本翻译成正式但略显口语化的中文，适合商务邮件使用：${input}`)
-
-                try {
-                    const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${API_KEY}`
-                        },
-                        body: JSON.stringify({
-                            model: "moonshot-v1-8k",
-                            messages: [{"role": "user", "content": prompt}],
-                            temperature: 0.3
-                        })
-                    });
-
-                    const data = await response.json();
-                    const translation = data.choices[0].message.content;
-                    outputElement.value = translation;
-
-                } catch (error) {
-                    console.error('翻译出错:', error);
-                    outputElement.value = '翻译失败，请检查网络连接或API密钥';
-                } finally {
-                    // 恢复按钮和隐藏加载动画
-                    buttons.forEach(button => button.disabled = false);
-                    loadingElement.style.display = 'none';
-                }
+            if (!original || !translated) {
+                alert('请输入原词和译词');
+                return;
             }
 
-            // 中文输入框的按钮事件绑定
-            document.getElementById('chinese-formal-btn').addEventListener('click', function() {
-                translate('chinese', 'formal');
-            });
-            document.getElementById('chinese-email-btn').addEventListener('click', function() {
-                translate('chinese', 'email');
-            });
+            if (customWords.length >= 10) {
+                alert('最多只能添加10个自定义词汇');
+                return;
+            }
 
-            // 英文输入框的按钮事件绑定
-            document.getElementById('english-formal-btn').addEventListener('click', function() {
-                translate('english', 'formal');
+            customWords.push({ original, translated });
+            localStorage.setItem('customWords', JSON.stringify(customWords));
+            
+            originalWordInput.value = '';
+            translatedWordInput.value = '';
+            
+            loadCustomWords();
+        }
+
+        // 删除自定义词汇
+        function removeCustomWord(index) {
+            customWords.splice(index, 1);
+            localStorage.setItem('customWords', JSON.stringify(customWords));
+            loadCustomWords();
+        }
+
+        // 初始化加载自定义词汇
+        loadCustomWords();
+
+        // 替换自定义词汇
+        function replaceCustomWords(text) {
+            customWords.forEach(word => {
+                text = text.replace(new RegExp(word.original, 'g'), word.translated);
             });
-            document.getElementById('english-email-btn').addEventListener('click', function() {
-                translate('english', 'email');
-            });
-        });
+            return text;
+        }
+
+        async function translateText() {
+            const text = sourceText.value.trim();
+            if (!text) {
+                alert('请输入需要翻译的文本');
+                return;
+            }
+
+            targetText.value = '正在翻译中...';
+            targetText.classList.add('text-gray-500');
+
+            try {
+                const response = await fetch(KIMI_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "moonshot-v1-8k",
+                        messages: [{
+                            role: "system",
+                            content: `你是一位专业的法律翻译专家。请将文本从${sourceLang.value}翻译成${targetLang.value}，要求：
+1. 保持法律文本的专业性和准确性
+2. 使用正式的法律术语
+3. 尽可能贴近法律文件的表达方式
+4. 保持原文的语气和风格`
+                        }, {
+                            role: "user",
+                            content: text
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                let result = data.choices[0].message.content;
+
+                // 应用自定义词汇替换
+                result = replaceCustomWords(result);
+
+                targetText.value = result;
+                targetText.classList.remove('text-gray-500');
+
+            } catch (error) {
+                console.error('翻译错误:', error);
+                targetText.value = '翻译失败，请检查网络连接';
+                targetText.classList.remove('text-gray-500');
+            }
+        }
+
+        function copyText() {
+            targetText.select();
+            document.execCommand('copy');
+            alert('已复制翻译结果');
+        }
     </script>
 </body>
 </html> 

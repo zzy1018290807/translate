@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+    <rect width="500" height="500" fill="white"/>
+    <text x="250" y="200" text-anchor="middle" font-family="Arial" font-size="60" fill="#003366">LegalAI</text>
+    <text x="250" y="300" text-anchor="middle" font-family="Arial" font-size="50" fill="#003366">翻译平台</text>
+    <line x1="150" y1="350" x2="350" y2="350" stroke="#003366" stroke-width="3"/>
+</svg> 
