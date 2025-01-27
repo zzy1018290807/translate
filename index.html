@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>法律智能翻译平台</title>
+    <title>LegalAI 智能助手</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
@@ -16,22 +16,18 @@
             font-family: 'Arial', sans-serif;
             perspective: 1000px;
         }
-        .login-container, .main-container {
-            transition: all 0.6s ease;
-            transform-style: preserve-3d;
-        }
         .login-container {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
         }
-        .card {
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        .feature-card {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
         }
-        .card:hover {
-            transform: translateY(-10px) rotateX(10deg);
-            box-shadow: 0 20px 45px rgba(0,0,0,0.3);
+        .feature-card:hover {
+            transform: scale(1.05) rotateY(10deg);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
         }
         .logo {
             max-width: 150px;
@@ -54,26 +50,52 @@
 <body class="min-h-screen flex items-center justify-center p-4">
     <!-- 登录遮罩层 -->
     <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center" style="display:flex;">
-        <div class="login-container w-96 p-8 bg-white rounded-2xl shadow-2xl text-center">
+        <div class="login-container w-full max-w-4xl p-8 bg-white rounded-2xl shadow-2xl text-center">
             <img src="logo.svg" alt="Logo" class="logo mx-auto mb-6">
-            <h2 class="text-2xl font-bold mb-6 text-gray-800">法律智能翻译平台</h2>
-            <input 
-                type="password" 
-                id="passwordInput" 
-                placeholder="请输入登录密码" 
-                class="w-full p-3 border rounded-lg mb-4"
-            >
-            <button 
-                onclick="login()" 
-                class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
-            >
-                登录
-            </button>
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">选择功能</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <!-- 翻译功能 -->
+                <div class="feature-card p-6 bg-blue-50 rounded-lg cursor-pointer" onclick="selectFeature('translate')">
+                    <i class="fas fa-language text-4xl text-blue-600 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">法律文本翻译</h3>
+                    <p class="text-gray-600">专业的多语言法律文本翻译</p>
+                </div>
+
+                <!-- 邮件生成器 -->
+                <div class="feature-card p-6 bg-green-50 rounded-lg cursor-pointer" onclick="selectFeature('email')">
+                    <i class="fas fa-envelope text-4xl text-green-600 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">智能邮件生成器</h3>
+                    <p class="text-gray-600">根据简单描述生成专业邮件</p>
+                </div>
+
+                <!-- 拼写检查功能 -->
+                <div class="feature-card p-6 bg-purple-50 rounded-lg cursor-pointer" onclick="selectFeature('spellCheck')">
+                    <i class="fas fa-spell-check text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">拼写和语法检查</h3>
+                    <p class="text-gray-600">智能纠正文本错误</p>
+                </div>
+            </div>
+
+            <div id="passwordSection" style="display:none;">
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    placeholder="请输入登录密码" 
+                    class="w-full p-3 border rounded-lg mb-4"
+                >
+                <button 
+                    onclick="login()" 
+                    class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+                >
+                    登录
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- 主容器 -->
-    <div id="mainContainer" class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden flex" style="display:none;">
+    <!-- 翻译功能容器 -->
+    <div id="translateContainer" class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden flex" style="display:none;">
         <!-- 主翻译区域 -->
         <div class="w-3/4 p-6">
             <div class="flex justify-between items-center mb-6">
@@ -168,16 +190,187 @@
         </div>
     </div>
 
+    <!-- 邮件生成器容器 -->
+    <div id="emailContainer" class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl p-8" style="display:none;">
+        <div class="flex justify-between items-center mb-6">
+            <img src="logo.svg" alt="Logo" class="h-12">
+            <button 
+                onclick="logout()" 
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+                退出登录
+            </button>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="card p-4 rounded-lg">
+                <h3 class="text-xl font-bold mb-4">邮件主题</h3>
+                <input 
+                    type="text" 
+                    id="emailSubject" 
+                    placeholder="请输入邮件主题" 
+                    class="w-full p-3 border rounded-lg mb-4"
+                >
+
+                <h3 class="text-xl font-bold mb-4">邮件内容简述</h3>
+                <textarea 
+                    id="emailContext" 
+                    placeholder="简单描述你想表达的内容..." 
+                    class="w-full p-3 border rounded-lg mb-4"
+                    rows="5"
+                ></textarea>
+
+                <h3 class="text-xl font-bold mb-4">语言选择</h3>
+                <select id="emailLang" class="w-full p-3 border rounded-lg mb-4">
+                    <option value="zh">中文</option>
+                    <option value="en">English</option>
+                </select>
+
+                <h3 class="text-xl font-bold mb-4">语气选择</h3>
+                <select id="emailTone" class="w-full p-3 border rounded-lg mb-4">
+                    <option value="professional">专业正式</option>
+                    <option value="friendly">友好温和</option>
+                    <option value="urgent">紧急</option>
+                </select>
+
+                <button 
+                    onclick="generateEmail()" 
+                    class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition"
+                >
+                    生成邮件
+                </button>
+            </div>
+
+            <div class="card p-4 rounded-lg">
+                <h3 class="text-xl font-bold mb-4">生成结果</h3>
+                <textarea 
+                    id="emailResult" 
+                    class="w-full p-3 border rounded-lg bg-gray-50"
+                    rows="15"
+                    readonly
+                ></textarea>
+                <div class="flex space-x-4 mt-4">
+                    <button 
+                        onclick="copyEmail()" 
+                        class="flex-1 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition"
+                    >
+                        复制邮件
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 拼写检查功能 -->
+    <div id="spellCheckContainer" class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl p-8" style="display:none;">
+        <div class="flex justify-between items-center mb-6">
+            <img src="logo.svg" alt="Logo" class="h-12">
+            <button 
+                onclick="logout()" 
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+                退出登录
+            </button>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="card p-4 rounded-lg">
+                <h3 class="text-xl font-bold mb-4">
+                    <i class="fas fa-spell-check mr-2 text-blue-600"></i>文本检查
+                </h3>
+                <select id="spellCheckLang" class="w-full p-3 border rounded-lg mb-4">
+                    <option value="zh">中文</option>
+                    <option value="en">English</option>
+                </select>
+                <textarea 
+                    id="spellCheckInput" 
+                    placeholder="输入需要检查的文本..." 
+                    class="w-full p-3 border rounded-lg mb-4"
+                    rows="10"
+                ></textarea>
+
+                <h3 class="text-xl font-bold mb-4">语气选择</h3>
+                <select id="spellCheckTone" class="w-full p-3 border rounded-lg mb-4">
+                    <option value="professional">专业正式</option>
+                    <option value="casual">口语轻松</option>
+                    <option value="academic">学术严谨</option>
+                    <option value="email">商务邮件</option>
+                    <option value="literary">文学优雅</option>
+                </select>
+
+                <button 
+                    onclick="checkSpelling()" 
+                    class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
+                >
+                    开始检查
+                </button>
+            </div>
+
+            <div class="card p-4 rounded-lg">
+                <h3 class="text-xl font-bold mb-4">
+                    <i class="fas fa-edit mr-2 text-green-600"></i>检查结果
+                </h3>
+                <textarea 
+                    id="spellCheckResult" 
+                    class="w-full p-3 border rounded-lg bg-gray-50"
+                    rows="5"
+                    readonly
+                ></textarea>
+
+                <h3 class="text-xl font-bold my-4">
+                    <i class="fas fa-pen-fancy mr-2 text-purple-600"></i>改写结果
+                </h3>
+                <textarea 
+                    id="spellCheckRewrite" 
+                    class="w-full p-3 border rounded-lg bg-gray-50"
+                    rows="5"
+                    readonly
+                ></textarea>
+
+                <div class="flex space-x-4 mt-4">
+                    <button 
+                        onclick="copySpellCheckResult()" 
+                        class="flex-1 bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition"
+                    >
+                        复制检查结果
+                    </button>
+                    <button 
+                        onclick="copySpellCheckRewrite()" 
+                        class="flex-1 bg-purple-500 text-white p-3 rounded-lg hover:bg-purple-600 transition"
+                    >
+                        复制改写结果
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const CORRECT_PASSWORD = '123456';
         const loginOverlay = document.getElementById('loginOverlay');
-        const mainContainer = document.getElementById('mainContainer');
+        const translateContainer = document.getElementById('translateContainer');
+        const emailContainer = document.getElementById('emailContainer');
         const passwordInput = document.getElementById('passwordInput');
+        const passwordSection = document.getElementById('passwordSection');
+
+        let currentFeature = '';
+
+        function selectFeature(feature) {
+            currentFeature = feature;
+            passwordSection.style.display = 'block';
+        }
 
         function login() {
             if (passwordInput.value === CORRECT_PASSWORD) {
                 loginOverlay.style.display = 'none';
-                mainContainer.style.display = 'flex';
+                
+                if (currentFeature === 'translate') {
+                    translateContainer.style.display = 'flex';
+                } else if (currentFeature === 'email') {
+                    emailContainer.style.display = 'block';
+                } else if (currentFeature === 'spellCheck') {
+                    spellCheckContainer.style.display = 'block';
+                }
             } else {
                 alert('密码错误，请重试');
                 passwordInput.value = '';
@@ -185,22 +378,75 @@
         }
 
         function logout() {
-            mainContainer.style.display = 'none';
+            if (currentFeature === 'translate') {
+                translateContainer.style.display = 'none';
+            } else if (currentFeature === 'email') {
+                emailContainer.style.display = 'none';
+            } else if (currentFeature === 'spellCheck') {
+                spellCheckContainer.style.display = 'none';
+            }
+            
             loginOverlay.style.display = 'flex';
             passwordInput.value = '';
+            passwordSection.style.display = 'none';
         }
 
-        // 以下是之前的代码保持不变
+        // Kimi API配置
         const KIMI_API_URL = 'https://api.moonshot.cn/v1/chat/completions';
         const API_KEY = 'sk-WjQ5hvrI4DjTCBHdbe5rlWLuWN2rwpkaE5mDldcekhIbm7Yz';
-        
-        const targetText = document.getElementById('targetText');
-        const sourceText = document.getElementById('sourceText');
-        const sourceLang = document.getElementById('sourceLang');
-        const targetLang = document.getElementById('targetLang');
-        const originalWordInput = document.getElementById('originalWord');
-        const translatedWordInput = document.getElementById('translatedWord');
-        const customWordList = document.getElementById('customWordList');
+
+        // 邮件生成函数
+        async function generateEmail() {
+            const subject = document.getElementById('emailSubject').value.trim();
+            const context = document.getElementById('emailContext').value.trim();
+            const lang = document.getElementById('emailLang').value;
+            const tone = document.getElementById('emailTone').value;
+
+            if (!subject || !context) {
+                alert('请填写邮件主题和内容');
+                return;
+            }
+
+            const emailResult = document.getElementById('emailResult');
+            emailResult.value = '正在生成邮件...';
+
+            try {
+                const response = await fetch(KIMI_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "moonshot-v1-8k",
+                        messages: [{
+                            role: "system",
+                            content: `你是一位专业的${lang === 'zh' ? '中文' : '英文'}邮件写作助手。
+要求：
+1. 语言：${lang === 'zh' ? '中文' : 'English'}
+2. 语气：${tone === 'professional' ? '专业正式' : tone === 'friendly' ? '友好温和' : '紧急'}
+3. 主题：${subject}
+4. 根据以下简要描述撰写完整邮件：${context}`
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const result = data.choices[0].message.content;
+                emailResult.value = result;
+
+            } catch (error) {
+                console.error('邮件生成错误:', error);
+                emailResult.value = '生成失败，请检查网络连接';
+            }
+        }
+
+        function copyEmail() {
+            const emailResult = document.getElementById('emailResult');
+            emailResult.select();
+            document.execCommand('copy');
+            alert('已复制邮件内容');
+        }
 
         // 自定义词汇存储
         let customWords = JSON.parse(localStorage.getItem('customWords') || '[]');
@@ -328,6 +574,99 @@
             document.execCommand('copy');
             alert('已复制翻译结果');
         }
+
+        // 添加拼写检查相关函数
+        async function checkSpelling() {
+            const text = document.getElementById('spellCheckInput').value.trim();
+            const lang = document.getElementById('spellCheckLang').value;
+            const tone = document.getElementById('spellCheckTone').value;
+            const spellCheckResult = document.getElementById('spellCheckResult');
+            const spellCheckRewrite = document.getElementById('spellCheckRewrite');
+
+            if (!text) {
+                alert('请输入需要检查的文本');
+                return;
+            }
+
+            spellCheckResult.value = '正在检查...';
+            spellCheckRewrite.value = '正在改写...';
+
+            try {
+                const response = await fetch(KIMI_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "moonshot-v1-8k",
+                        messages: [{
+                            role: "system",
+                            content: `你是一位专业的${lang === 'zh' ? '中文' : '英文'}语言专家。请仔细检查以下文本，并提供：
+
+1. 语言：${lang === 'zh' ? '中文' : 'English'}
+2. 语气风格：${
+    tone === 'professional' ? '专业正式' : 
+    tone === 'casual' ? '口语轻松' : 
+    tone === 'academic' ? '学术严谨' : 
+    tone === 'email' ? '商务邮件' : 
+    '文学优雅'
+}
+
+检查要点：
+- 拼写错误的修正
+- 语法问题的建议
+- 可读性改进
+- 专业性建议
+- 根据选定语气进行文本优化
+
+原始文本：${text}
+
+请分两部分回复：
+第一部分：详细的文本检查报告
+第二部分：根据${
+    tone === 'professional' ? '专业正式' : 
+    tone === 'casual' ? '口语轻松' : 
+    tone === 'academic' ? '学术严谨' : 
+    tone === 'email' ? '商务邮件' : 
+    '文学优雅'
+}风格改写的文本`
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const fullResult = data.choices[0].message.content;
+                
+                // 分割检查结果和改写结果
+                const [checkResult, rewriteResult] = fullResult.split('第二部分：');
+                
+                spellCheckResult.value = checkResult.replace('第一部分：', '').trim();
+                spellCheckRewrite.value = rewriteResult.trim();
+
+            } catch (error) {
+                console.error('拼写检查错误:', error);
+                spellCheckResult.value = '检查失败，请检查网络连接';
+                spellCheckRewrite.value = '改写失败，请检查网络连接';
+            }
+        }
+
+        function copySpellCheckResult() {
+            const spellCheckResult = document.getElementById('spellCheckResult');
+            spellCheckResult.select();
+            document.execCommand('copy');
+            alert('已复制检查结果');
+        }
+
+        function copySpellCheckRewrite() {
+            const spellCheckRewrite = document.getElementById('spellCheckRewrite');
+            spellCheckRewrite.select();
+            document.execCommand('copy');
+            alert('已复制改写结果');
+        }
+
+        // 获取拼写检查容器的DOM元素
+        const spellCheckContainer = document.getElementById('spellCheckContainer');
     </script>
 </body>
 </html> 
